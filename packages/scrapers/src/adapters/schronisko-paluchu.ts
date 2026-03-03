@@ -8,9 +8,10 @@ const USER_AGENT = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36
 
 const SHELTER_ID = "schronisko-paluchu"
 const BASE_URL = "https://napaluchu.waw.pl"
-const SOURCE_URL = `${BASE_URL}/zwierzeta/zwierzeta-do-adopcji/?pet_page=1`
+const SOURCE_URL = `${BASE_URL}/zwierzeta/zwierzeta-do-adopcji/`
 
-const MAX_DOG_URLS = 300
+const MAX_PAGES = 40
+const MAX_DOG_URLS = 600
 
 const isPhotoUrl = (url: string): boolean =>
   /\.(?:jpe?g|png|webp)(?:\?|$)/i.test(url)
@@ -139,7 +140,7 @@ export const schroniskoPaluchuAdapter = createAdapter({
   id: SHELTER_ID,
   name: "Schronisko na Paluchu",
   url: BASE_URL,
-  sourceUrl: SOURCE_URL,
+  sourceUrl: `${SOURCE_URL}?pet_page=1`,
   city: "Warszawa",
   region: "Mazowieckie",
 
@@ -170,10 +171,43 @@ export const schroniskoPaluchuAdapter = createAdapter({
   parse: (html, config) =>
     Effect.gen(function* () {
       const client = yield* HttpClient.HttpClient
-      const dogUrls = extractPaluchuDogUrlsFromListing(html)
+      
+      // Get URLs from first page
+      let allDogUrls = [...extractPaluchuDogUrlsFromListing(html)]
+      
+      // Fetch additional pages (2-40)
+      for (let page = 2; page <= MAX_PAGES; page++) {
+        const pageUrl = `${BASE_URL}/zwierzeta/zwierzeta-do-adopcji/?pet_page=${page}`
+        
+        const pageResult = yield* Effect.gen(function* () {
+          const request = HttpClientRequest.get(pageUrl).pipe(
+            HttpClientRequest.setHeader("User-Agent", USER_AGENT)
+          )
+          const pageHtml = yield* client.execute(request).pipe(
+            Effect.flatMap((res) => res.text), 
+            Effect.scoped
+          )
+          return extractPaluchuDogUrlsFromListing(pageHtml)
+        }).pipe(Effect.catchAll(() => Effect.succeed([] as string[])))
+        
+        if (pageResult.length === 0) {
+          // No more dogs on this page, stop pagination
+          break
+        }
+        
+        allDogUrls.push(...pageResult)
+        
+        // Safety limit
+        if (allDogUrls.length >= MAX_DOG_URLS) {
+          break
+        }
+      }
+      
+      // Remove duplicates
+      const uniqueUrls = [...new Set(allDogUrls)].slice(0, MAX_DOG_URLS)
 
       const dogs = yield* Effect.all(
-        dogUrls.map((url) =>
+        uniqueUrls.map((url) =>
           Effect.gen(function* () {
             const request = HttpClientRequest.get(url).pipe(
               HttpClientRequest.setHeader("User-Agent", USER_AGENT)
