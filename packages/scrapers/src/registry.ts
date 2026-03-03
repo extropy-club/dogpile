@@ -25,6 +25,7 @@ import { fundacjaSterczaceUszyAdapter } from "./adapters/fundacja-sterczace-uszy
 import { schroniskoGnieznoAdapter } from "./adapters/schronisko-gniezno.js"
 import { schroniskoJedrzejewoAdapter } from "./adapters/schronisko-jedrzejewo.js"
 import { schroniskoPaluchuAdapter } from "./adapters/schronisko-paluchu.js"
+import { celestyniakiAdapter } from "./adapters/celestyniaki.js"
 
 const adapters = new Map<string, ShelterAdapter>()
 
@@ -58,6 +59,7 @@ registerAdapter(przytuliskoUWandyAdapter)
 registerAdapter(otozSompolnoAdapter)
 registerAdapter(fundacjaSterczaceUszyAdapter)
 registerAdapter(schroniskoPaluchuAdapter)
+registerAdapter(celestyniakiAdapter)
 
 export const getAdapter = (id: string): ShelterAdapter | undefined => {
   return adapters.get(id)
