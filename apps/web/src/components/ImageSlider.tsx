@@ -22,8 +22,8 @@ export default function ImageSlider(props: Props) {
   const allPhotos = () => [...(props.photosGenerated || []), ...(props.photos || [])]
 
   const currentPhoto = () => allPhotos()[index()]
-  const currentSrc = () => currentPhoto() ? getPhotoUrl(currentPhoto(), size()) : '/placeholder-dog.jpg'
-  const currentSrcSet = () => currentPhoto() ? getPhotoSrcSet(currentPhoto()) : ""
+const currentSrc = () => currentPhoto() ? getPhotoUrl(currentPhoto(), size()) : '/placeholder-dog.jpg'
+const currentSrcSet = () => currentPhoto() ? getPhotoSrcSet(currentPhoto()) : undefined
 
   createEffect(() => {
     const photos = allPhotos()

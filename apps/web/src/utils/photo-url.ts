@@ -18,9 +18,10 @@ export function getPhotoUrl(photoKey: string, size: PhotoSize): string {
   return `${R2_PHOTOS_DOMAIN}/${photoKey}-${size}.webp`
 }
 
-export function getPhotoSrcSet(photoKey: string): string {
+export function getPhotoSrcSet(photoKey: string): string | undefined {
+  // External URLs don't need srcset - browser will use the full URL directly
   if (photoKey.startsWith("http")) {
-    return ""
+    return undefined
   }
 
   const sm = getPhotoUrl(photoKey, "sm")
