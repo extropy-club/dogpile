@@ -1,4 +1,4 @@
-import { createSignal } from "solid-js"
+import { createSignal, onMount } from "solid-js"
 import type { Dog } from "./types"
 import ImageSlider from "./ImageSlider"
 import { t } from "../i18n"
@@ -27,10 +27,13 @@ function formatAge(ageEstimate: Dog["ageEstimate"]): string | null {
 }
 
 export default function DogCard(props: Props) {
-  const [isFavorite, setIsFavorite] = createSignal(
-    typeof localStorage !== "undefined" &&
-    localStorage.getItem(`favorite-${props.dog.id}`) === "true"
-  )
+  const [isFavorite, setIsFavorite] = createSignal(false)
+  
+  onMount(() => {
+    if (typeof window !== "undefined" && typeof localStorage !== "undefined") {
+      setIsFavorite(localStorage.getItem(`favorite-${props.dog.id}`) === "true")
+    }
+  })
 
   const toggleFavorite = () => {
     const newValue = !isFavorite()
