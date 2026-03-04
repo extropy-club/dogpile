@@ -35,24 +35,34 @@ export const extractOstrowDogUrlsFromListing = (html: string): readonly string[]
   const document = parseDocument(html)
   const urls = new Set<string>()
 
+  // Known navigation paths to exclude
+  const excludedPaths = [
+    "", "/", "/o-nas", "/adopcja-psy", "/adopcje-psy", "/znalazles-psa",
+    "/wolnozyjace-koty", "/zwierze-po-wypadku", "/dzikie-zwierze", "/kontakt",
+    "/files", "/lib"
+  ]
+
   const links = [...document.querySelectorAll('a[href]')]
     .map((a) => a.getAttribute("href"))
-    .filter((href): href is string =>
-      typeof href === "string" &&
+    .filter((href): href is string => typeof href === "string")
+    // Convert relative URLs to absolute
+    .map((href) => href.startsWith("http") ? href : `${BASE_URL}${href}`)
+    .filter((href) =>
       href.startsWith(BASE_URL + "/") &&
-      !href.includes("/adopcja-") &&
-      !href.includes("/o-nas") &&
       !href.includes("facebook") &&
       !href.includes("instagram") &&
-      !href.includes("google") &&
-      href !== BASE_URL &&
-      href !== BASE_URL + "/"
+      !href.includes("google")
     )
 
   for (const href of links) {
     if (urls.size >= MAX_DOGS) break
     const slug = href.replace(BASE_URL, "").replace(/^\//, "").replace(/\/$/, "")
-    if (slug && !slug.includes("/") && slug.length > 1 && slug.length < 50) {
+    // Dog pages are single-word slugs not in excluded list
+    if (slug && 
+        !slug.includes("/") && 
+        !excludedPaths.includes("/" + slug) &&
+        slug.length > 1 && 
+        slug.length < 50) {
       urls.add(href.replace(/\/$/, ""))
     }
   }

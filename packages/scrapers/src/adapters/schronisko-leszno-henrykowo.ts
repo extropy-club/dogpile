@@ -5,7 +5,9 @@ import { createAdapter, type RawDogData } from "../adapter.js"
 import { ScrapeError, ParseError } from "@dogpile/core"
 
 const SHELTER_ID = "schronisko-leszno-henrykowo"
-const BASE_URL = "https://schronisko.leszno.pl"
+// Using HTTP instead of HTTPS due to incomplete SSL certificate chain
+// The site has certificate verification issues that prevent HTTPS fetching
+const BASE_URL = "http://schronisko.leszno.pl"
 const SOURCE_URL = `${BASE_URL}/adopcje/psy-do-adopcji/`
 
 const MAX_LISTING_PAGES = 10
@@ -38,9 +40,18 @@ export const extractLesznoHenrykowoDogUrlsFromListing = (html: string): readonly
 
   const links = [...document.querySelectorAll('a[href]')]
     .map((a) => a.getAttribute("href"))
-    .filter((href): href is string =>
-      typeof href === "string" &&
-      href.startsWith(BASE_URL + "/") &&
+    .filter((href): href is string => typeof href === "string")
+    // Exclude JavaScript and anchor links
+    .filter((href) => !href.startsWith("javascript:") && !href.startsWith("#"))
+    // Convert relative URLs to absolute
+    .map((href) => {
+      if (href.startsWith("http")) return href
+      // Handle relative URLs
+      if (href.startsWith("/")) return `${BASE_URL}${href}`
+      return `${BASE_URL}/${href}`
+    })
+    .filter((href) =>
+      (href.startsWith("http://schronisko.leszno.pl/") || href.startsWith("https://schronisko.leszno.pl/")) &&
       !href.includes("/category/") &&
       !href.includes("/adopcje/") &&
       !href.includes("/aktualnosci/") &&
@@ -58,9 +69,11 @@ export const extractLesznoHenrykowoDogUrlsFromListing = (html: string): readonly
 
   for (const href of links) {
     if (urls.size >= MAX_DOGS) break
-    const slug = href.replace(BASE_URL, "").replace(/^\//, "").replace(/\/$/, "")
+    // Normalize to http:// for consistency
+    const normalizedHref = href.replace("https://schronisko.leszno.pl", "http://schronisko.leszno.pl")
+    const slug = normalizedHref.replace(BASE_URL, "").replace(/^\//, "").replace(/\/$/, "")
     if (slug && !slug.includes("/") && slug.length > 1 && slug.length < 100) {
-      urls.add(href.replace(/\/$/, "") + "/")
+      urls.add(normalizedHref.replace(/\/$/, "") + "/")
     }
   }
   return [...urls]
