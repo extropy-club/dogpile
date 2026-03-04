@@ -33,6 +33,13 @@ const readQueryParam = (url: string, key: string): string | null => {
 export const extractJedrzejewoDogUrlsFromListing = (html: string): readonly string[] => {
   const { document } = parseHTML(html)
 
+  // Check if shelter has no animals (TabPanel_NoAnimal tab is present)
+  const noAnimalTab = document.querySelector('#MainContent_TabContainer1_TabPanel_NoAnimal')
+  if (noAnimalTab) {
+    // Shelter has no dogs currently
+    return []
+  }
+
   const urls = [...document.querySelectorAll('a[href*="DetailsOfTheAnimal.aspx"]')]
     .map((a) => a.getAttribute("href"))
     .filter((href): href is string => typeof href === "string" && href.length > 0)

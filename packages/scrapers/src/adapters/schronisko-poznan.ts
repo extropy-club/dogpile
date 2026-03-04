@@ -16,10 +16,14 @@ const isPhotoUrl = (url: string): boolean =>
 export const extractPoznanDogUrlsFromListing = (html: string): readonly string[] => {
   const { document } = parseHTML(html)
 
-  const urls = [...document.querySelectorAll('a[href*="/zwierzak/"]')]
-    .map((a) => a.getAttribute("href"))
-    .filter((href): href is string => !!href)
-    .map((href) => (href.startsWith("http") ? href : `${BASE_URL}${href}`))
+  // Dogs are loaded as WordPress us_portfolio post type in <article> elements
+  // Extract post IDs and construct URLs using ?p=[post-id] format
+  const postIds = [...document.querySelectorAll('article.us_portfolio[data-id]')]
+    .map((article) => article.getAttribute("data-id"))
+    .filter((id): id is string => !!id && /^\d+$/.test(id))
+
+  // Build URLs using post ID query parameter (WordPress will redirect to actual URL)
+  const urls = postIds.map((id) => `${BASE_URL}/?p=${id}`)
 
   return [...new Set(urls)].slice(0, MAX_DOG_URLS)
 }
@@ -27,11 +31,15 @@ export const extractPoznanDogUrlsFromListing = (html: string): readonly string[]
 export const extractPoznanDogFromDetailPage = (html: string, url: string): RawDogData => {
   const { document } = parseHTML(html)
 
-  const slug = url.split("/").filter(Boolean).pop() ?? ""
-  const externalId = slug
+  // Extract post ID from query parameter ?p=12345
+  const urlObj = new URL(url)
+  const externalId = urlObj.searchParams.get("p") ?? url.split("/").filter(Boolean).pop() ?? ""
 
-  const nameEl = document.querySelector("h1, .entry-title, .dog-name")
-  const name = nameEl?.textContent?.trim() ?? "Unknown"
+  // Try og:title first (most reliable), then h1, then fallback
+  const ogTitle = document.querySelector('meta[property="og:title"]')?.getAttribute("content")
+  const name = ogTitle?.replace(" - Schronisko dla zwierząt w Poznaniu", "").trim() 
+    ?? document.querySelector("h1")?.textContent?.trim() 
+    ?? "Unknown"
 
   const descriptionParagraphs = [...document.querySelectorAll(".entry-content p, .dog-description p, article p")]
     .map((p) => p.textContent?.trim() ?? "")
