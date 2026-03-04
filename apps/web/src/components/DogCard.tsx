@@ -62,7 +62,7 @@ export default function DogCard(props: Props) {
         </div>
       )}
 
-      <div class="relative aspect-[4/5] w-full">
+      <div class="relative flex-grow min-h-0 w-full aspect-[4/5]">
         <ImageSlider
           photos={props.dog.photos}
           photosGenerated={props.dog.photosGenerated}

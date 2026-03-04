@@ -105,7 +105,7 @@ export default function DogGrid(props: DogGridProps) {
 
         <Match when={dogs()}>
           <Show when={dogs()!.length > 0} fallback={<EmptyState isFavorites={!!props.filters?.ids} />}>
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8 card-grid">
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8 card-grid auto-rows-fr">
               <For each={dogs()}>
                 {(dog) => <DogCard dog={dog} />}
               </For>
