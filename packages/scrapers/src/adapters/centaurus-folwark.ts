@@ -6,7 +6,7 @@ import { ScrapeError, ParseError } from "@dogpile/core"
 
 const SHELTER_ID = "centaurus-folwark"
 const BASE_URL = "https://centaurus.org.pl"
-const SOURCE_URL = `${BASE_URL}/zwierzeta/psy/?cat=do-adopcji-realnej`
+const SOURCE_URL = `${BASE_URL}/psy/do-adopcji-realnej`
 
 const MAX_LIST_PAGES = 20
 const MAX_DOG_URLS = 500
@@ -29,7 +29,7 @@ type DocumentLike = {
 const listPageUrl = (page: number): string =>
   page === 1
     ? SOURCE_URL
-    : `${BASE_URL}/zwierzeta/psy/page/${page}/?cat=do-adopcji-realnej`
+    : `${BASE_URL}/psy/do-adopcji-realnej/page/${page}`
 
 const normalizeUrl = (url: string): string | null => {
   try {
@@ -50,7 +50,8 @@ const isUploadImageUrl = (url: string): boolean => {
     return false
   }
 
-  if (!pathname.includes("/wp-content/uploads/")) return false
+  // Accept WordPress uploads OR Centaurus /images/ paths
+  if (!pathname.includes("/wp-content/uploads/") && !pathname.includes("/images/")) return false
   if (pathname.endsWith(".svg")) return false
 
   return (
@@ -117,7 +118,7 @@ const extractMaxPage = (document: DocumentLike): number => {
 
 const extractDogUrlsFromListHtml = (html: string): readonly string[] => {
   const { document } = parseHTML(html) as unknown as { document: DocumentLike }
-  const links = [...document.querySelectorAll('a.tile-item[href*="/zwierze/psy/"]')].slice(0, 2000)
+  const links = [...document.querySelectorAll('a.tile-item[href*="/dog/"]')].slice(0, 2000)
 
   const urls: string[] = []
   for (const a of links) {
@@ -125,7 +126,7 @@ const extractDogUrlsFromListHtml = (html: string): readonly string[] => {
     if (!href) continue
     const normalized = normalizeUrl(href)
     if (!normalized) continue
-    if (!normalized.startsWith(`${BASE_URL}/zwierze/psy/`)) continue
+    if (!normalized.startsWith(`${BASE_URL}/dog/`)) continue
     urls.push(normalized)
   }
 

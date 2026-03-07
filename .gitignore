@@ -15,3 +15,6 @@ dist/
 .third-party/effect/
 third-party/effect/
 .astro/
+
+# Editor/tool configuration
+.opencode/
