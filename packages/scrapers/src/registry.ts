@@ -33,6 +33,7 @@ import { schroniskoPlockAdapter } from "./adapters/schronisko-plock.js"
 import { schroniskoMilanowekAdapter } from "./adapters/schronisko-milanowek.js"
 import { przyjacielePaluchaAdapter } from "./adapters/przyjaciele-palucha.js"
 import { schroniskoKrakowAdapter } from "./adapters/schronisko-krakow.js"
+import { schroniskoSzczecinAdapter } from "./adapters/schronisko-szczecin.js"
 
 const adapters = new Map<string, ShelterAdapter>()
 
@@ -74,6 +75,7 @@ registerAdapter(schroniskoPlockAdapter)
 registerAdapter(schroniskoMilanowekAdapter)
 registerAdapter(przyjacielePaluchaAdapter)
 registerAdapter(schroniskoKrakowAdapter)
+registerAdapter(schroniskoSzczecinAdapter)
 
 export const getAdapter = (id: string): ShelterAdapter | undefined => {
   return adapters.get(id)
