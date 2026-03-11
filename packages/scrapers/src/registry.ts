@@ -29,6 +29,7 @@ import { celestyniakiAdapter } from "./adapters/celestyniaki.js"
 import { fundacjaAzyluAdapter } from "./adapters/fundacja-azylu-psim-aniol.js"
 import { schroniskoKorabiewiceAdapter } from "./adapters/schronisko-korabiewice.js"
 import { fundacjaPrzyjacieleBraciAdapter } from "./adapters/fundacja-przyjaciele-braci.js"
+import { fundacjaJudytaAdapter } from "./adapters/fundacja-judyta.js"
 import { schroniskoPlockAdapter } from "./adapters/schronisko-plock.js"
 import { schroniskoMilanowekAdapter } from "./adapters/schronisko-milanowek.js"
 import { przyjacielePaluchaAdapter } from "./adapters/przyjaciele-palucha.js"
@@ -71,6 +72,7 @@ registerAdapter(celestyniakiAdapter)
 registerAdapter(fundacjaAzyluAdapter)
 registerAdapter(schroniskoKorabiewiceAdapter)
 registerAdapter(fundacjaPrzyjacieleBraciAdapter)
+registerAdapter(fundacjaJudytaAdapter)
 registerAdapter(schroniskoPlockAdapter)
 registerAdapter(schroniskoMilanowekAdapter)
 registerAdapter(przyjacielePaluchaAdapter)

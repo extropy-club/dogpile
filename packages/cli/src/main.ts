@@ -5,9 +5,10 @@ import { dbCommand } from "./commands/db.js"
 import { scrapeCommand } from "./commands/scrape.js"
 import { r2Command } from "./commands/r2.js"
 import { photosCommand } from "./commands/photos.js"
+import { dogsCommand } from "./commands/dogs.js"
 
 const cli = Command.make("dogpile").pipe(
-  Command.withSubcommands([dbCommand, r2Command, scrapeCommand, photosCommand])
+  Command.withSubcommands([dbCommand, r2Command, scrapeCommand, photosCommand, dogsCommand])
 )
 
 const run = Command.run(cli, {

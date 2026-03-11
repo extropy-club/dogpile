@@ -74,29 +74,52 @@ export const extractKorabiewiceDogFromDetailPage = (html: string, url: string): 
     }
   }
 
-  const infoText = document.body?.textContent?.toLowerCase() ?? ""
-
+  // Extract sex - use body text but exclude common navigation text patterns
   let sex: "male" | "female" | "unknown" = "unknown"
-  if (infoText.includes("samiec") || infoText.includes("pies")) {
-    sex = "male"
-  } else if (infoText.includes("samica") || infoText.includes("suczka")) {
+  
+  const bodyText = document.body?.textContent?.toLowerCase() ?? ""
+  // Remove common navigation/menu text that contains "psy"
+  const cleanText = bodyText
+    .replace(/menu-menu-header[\s\S]*?\/ul>/g, "") // Remove menu
+    .replace(/wyszukaj zwierzaka/g, "") // Remove search text
+    .replace(/wybierz rodzaj zwierzaka/g, "") // Remove filter text
+  
+  // Check for female indicators first (more specific)
+  if (cleanText.includes("suczka") || cleanText.includes("samica")) {
     sex = "female"
+  } else if (cleanText.includes(" pies ") || cleanText.includes("samiec")) {
+    sex = "male"
   }
 
-  const ageMonths = parseAgeFromText(infoText)
+  const ageMonths = parseAgeFromText(cleanText)
 
-  const descriptionEl = document.querySelector(".entry-content, article, .post-content")
-  let rawDescription = "No description"
+  // Try to find description element
+  const contentSelectors = [
+    ".entry-content",
+    "article", 
+    ".post-content",
+    ".content",
+    "main",
+    ".main-content"
+  ]
   
-  if (descriptionEl) {
-    const paragraphs = [...descriptionEl.querySelectorAll("p")]
-      .map((p) => p.textContent?.trim())
-      .filter((text): text is string => !!text && text.length > 0)
-    
-    if (paragraphs.length > 0) {
-      rawDescription = paragraphs.join("\n\n")
-    } else {
-      rawDescription = descriptionEl.textContent?.trim() || "No description"
+  let rawDescription = "No description"
+  for (const selector of contentSelectors) {
+    const el = document.querySelector(selector)
+    if (el) {
+      const text = el.textContent?.trim() ?? ""
+      if (text.length > 50) {
+        const paragraphs = [...el.querySelectorAll("p")]
+          .map((p) => p.textContent?.trim())
+          .filter((text): text is string => !!text && text.length > 0)
+        
+        if (paragraphs.length > 0) {
+          rawDescription = paragraphs.join("\n\n")
+        } else {
+          rawDescription = text
+        }
+        break
+      }
     }
   }
 
