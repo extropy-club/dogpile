@@ -11,6 +11,7 @@ async function fetchDogs({ apiUrl, filters }: { apiUrl: string, filters: DogFilt
   if (filters.city) url.searchParams.set("city", filters.city)
   if (filters.size) url.searchParams.set("size", filters.size)
   if (filters.sex) url.searchParams.set("sex", filters.sex)
+  if (filters.tag) url.searchParams.set("tag", filters.tag)
   if (filters.ids && filters.ids.length > 0) url.searchParams.set("ids", filters.ids.join(","))
 
   const response = await fetch(url.toString())
@@ -30,6 +31,7 @@ export interface DogFilters {
   city?: string
   size?: string
   sex?: string
+  tag?: string
   ids?: string[]
 }
 

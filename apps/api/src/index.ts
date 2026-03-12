@@ -306,6 +306,11 @@ const routes: Route[] = [
       if (size) {
         filters.push(sql`lower(json_extract(${dogs.sizeEstimate}, '$.value')) = lower(${size})`)
       }
+      
+      const tag = url.searchParams.get("tag")
+      if (tag) {
+        filters.push(sql`lower(json_extract(${dogs.personalityTags}, '$')) LIKE lower(${'%' + tag + '%'})`)
+      }
 
       const results = yield* Effect.tryPromise({
         try: () =>

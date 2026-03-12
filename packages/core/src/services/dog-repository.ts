@@ -44,6 +44,7 @@ export interface DogFilters {
   readonly city?: string
   readonly size?: string
   readonly sex?: string
+  readonly tag?: string
   readonly urgent?: boolean
   readonly status?: string
   readonly limit?: number

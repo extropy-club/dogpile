@@ -1,4 +1,4 @@
-import { createSignal, For } from "solid-js"
+import { createSignal, For, onMount, onCleanup } from "solid-js"
 import { t } from "../i18n"
 import type { DogFilters } from "./DogGrid"
 import MobileFilterSheet from "./MobileFilterSheet"
@@ -12,7 +12,20 @@ export default function FilterBar(_props: FilterBarProps) {
   const [city, setCity] = createSignal("")
   const [size, setSize] = createSignal("")
   const [sex, setSex] = createSignal("")
+  const [tag, setTag] = createSignal("")
   const [isMobileSheetOpen, setIsMobileSheetOpen] = createSignal(false)
+
+  onMount(() => {
+    const handleFiltersChanged = (e: Event) => {
+      const detail = (e as CustomEvent).detail as DogFilters
+      if (detail.city !== undefined) setCity(detail.city || "")
+      if (detail.size !== undefined) setSize(detail.size || "")
+      if (detail.sex !== undefined) setSex(detail.sex || "")
+      if (detail.tag !== undefined) setTag(detail.tag || "")
+    }
+    window.addEventListener('dog-filters-changed', handleFiltersChanged)
+    onCleanup(() => window.removeEventListener('dog-filters-changed', handleFiltersChanged))
+  })
 
   const handleSearch = (e: Event) => {
     e.preventDefault()
@@ -20,6 +33,18 @@ export default function FilterBar(_props: FilterBarProps) {
       city: city() || undefined,
       size: size() || undefined,
       sex: sex() || undefined,
+      tag: tag() || undefined,
+    }
+    window.dispatchEvent(new CustomEvent('dog-filters-changed', { detail }))
+  }
+
+  const clearTag = () => {
+    setTag('')
+    const detail = {
+      city: city() || undefined,
+      size: size() || undefined,
+      sex: sex() || undefined,
+      tag: undefined,
     }
     window.dispatchEvent(new CustomEvent('dog-filters-changed', { detail }))
   }
@@ -27,6 +52,24 @@ export default function FilterBar(_props: FilterBarProps) {
   return (
     <section id="filter-section" class="w-full pt-2 md:pt-3">
       <div class="max-w-6xl mx-auto px-4 mb-2">
+        {tag() && (
+          <div class="mb-4 flex items-center gap-2">
+            <span class="text-sm font-bold text-sys-ink-primary/70">{t('filters.tagLabel')}:</span>
+            <span class="tag-sky text-sm px-3 py-1 flex items-center gap-2">
+              #{tag()}
+              <button
+                onClick={clearTag}
+                class="text-sys-ink-primary/50 hover:text-sys-state-urgent transition-colors"
+                aria-label={t('filters.clearTag')}
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <line x1="18" y1="6" x2="6" y2="18"></line>
+                  <line x1="6" y1="6" x2="18" y2="18"></line>
+                </svg>
+              </button>
+            </span>
+          </div>
+        )}
         <form onSubmit={handleSearch} class="hidden sm:grid grid-cols-4 gap-4">
           <div class="space-y-2">
             <label class="font-bold text-sm uppercase tracking-wide text-sys-ink-primary/50">{t('filters.location')}</label>

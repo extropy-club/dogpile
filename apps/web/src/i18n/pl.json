@@ -53,7 +53,9 @@
     "seniors": "Seniorzy",
     "low": "Niski",
     "medium": "Średni",
-    "high": "Wysoki"
+    "high": "Wysoki",
+    "tagLabel": "Filtruj po tagu",
+    "clearTag": "Wyczyść tag"
   },
   "card": {
     "year": "rok",
@@ -125,6 +127,8 @@
     "urgent": "PILNE!",
     "tagline": "Szuka miękkiego miejsca do lądowania",
     "vibeCheck": "Vibe Check",
+    "share": "Udostępnij",
+    "linkCopied": "Skopiowano!",
     "lightboxClose": "Zamknij pełnoekranowy widok",
     "lightboxPrevious": "Poprzednie zdjęcie",
     "lightboxNext": "Następne zdjęcie"

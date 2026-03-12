@@ -2,6 +2,7 @@
 import Layout from '../../layouts/Layout.astro'
 import Footer from '../../components/Footer.astro'
 import DogDetailGallery from '../../components/DogDetailGallery'
+import ShareButton from '../../components/ShareButton'
 import { getPhotoUrl } from '../../utils/photo-url'
 import { t, type Language } from '../../i18n'
 import { capitalizeWords } from '../../utils/format'
@@ -75,6 +76,7 @@ const ogImage = (dog.photosGenerated?.[0] || dog.photos?.[0])
               <div class="flex flex-wrap items-center gap-3 mb-2">
                 <h1 class="text-6xl font-black">{capitalizeWords(dog.name)}</h1>
                 {dog.urgent && <span class="tag-urgent">{t('dogDetail.urgent', lang)}</span>}
+                <ShareButton client:load lang={lang} class="ml-auto" />
               </div>
               <p class="text-xl font-narrative opacity-60">{t('dogDetail.tagline', lang)}</p>
             </header>
@@ -149,9 +151,13 @@ const ogImage = (dog.photosGenerated?.[0] || dog.photos?.[0])
                 <h3 class="text-3xl">{t('dogDetail.vibeCheck', lang)}</h3>
                 <div class="flex flex-wrap gap-2">
                   {dog.personalityTags.map((tag: string) => (
-                    <span class="tag-sky text-lg px-4 py-2">
+                    <a
+                      href="/dogs"
+                      class="tag-sky text-lg px-4 py-2 cursor-pointer hover:bg-sys-heart-soft/30 transition-colors"
+                      onclick={`event.preventDefault(); window.dispatchEvent(new CustomEvent('dog-filters-changed', { detail: { tag: '${tag}' } })); window.location.href = '/dogs';`}
+                    >
                       #{tag}
-                    </span>
+                    </a>
                   ))}
                 </div>
               </div>
